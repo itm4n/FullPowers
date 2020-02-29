@@ -2,6 +2,10 @@
 
 ___FullPowers___ is a Proof-of-Concept tool I made to automatically recover the default privilege set of a service account.
 
+<p align="center">
+  <img src="demo.gif">
+</p>
+
 ## Rationale
 
 On Windows, some services running as `LOCAL SERVICE` or `NETWORK SERVICE` are configured to __run with a restricted set of privileges__. Therefore, even if the service is compromised, __you won't get the golden impersonation privileges__ and privilege escalation to `LOCAL SYSTEM` should be more complicated. However, I found that, when you __create a scheduled task__, the new process created by the __Task Scheduler Service__ has __all the default privileges__ of the associated user account (except _SeImpersonate_). Therefore, with some token manipulations, you can spawn a new process with all the missing privileges.
@@ -23,6 +27,7 @@ FullPowers v0.1 (by @itm4n)
 Optional arguments:
   -v              Verbose mode, used for debugging essentially
   -c <CMD>        Custom command line to execute (default is 'C:\Windows\System32\cmd.exe')
+  -x              Try to get the extended set of privileges (might fail with NETWORK SERVICE)
   -z              Non-interactive, create a new process and exit (default is 'interact with the new process')
 ```
 
