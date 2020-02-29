@@ -1,6 +1,6 @@
 # FullPowers
 
-___FullPowers___ is a Proof-of-Concept tool I made to automatically recover the default privilege set of a service account.
+___FullPowers___ is a Proof-of-Concept tool I made for automatically recovering the default privilege set of a service account.
 
 <p align="center">
   <img src="demo.gif">
@@ -8,7 +8,7 @@ ___FullPowers___ is a Proof-of-Concept tool I made to automatically recover the 
 
 ## Rationale
 
-On Windows, some services running as `LOCAL SERVICE` or `NETWORK SERVICE` are configured to __run with a restricted set of privileges__. Therefore, even if the service is compromised, __you won't get the golden impersonation privileges__ and privilege escalation to `LOCAL SYSTEM` should be more complicated. However, I found that, when you __create a scheduled task__, the new process created by the __Task Scheduler Service__ has __all the default privileges__ of the associated user account (except _SeImpersonate_). Therefore, with some token manipulations, you can spawn a new process with all the missing privileges.
+On Windows, some services executed as `LOCAL SERVICE` or `NETWORK SERVICE` are configured to __run with a restricted set of privileges__. Therefore, even if the service is compromised, __you won't get the golden impersonation privileges__ and privilege escalation to `LOCAL SYSTEM` should be more complicated. However, I found that, when you __create a scheduled task__, the new process created by the __Task Scheduler Service__ has __all the default privileges__ of the associated user account (except _SeImpersonate_). Therefore, with some token manipulations, you can spawn a new process with all the missing privileges.
 
 For more information: https://itm4n.github.io/localservice-privileges/
 
