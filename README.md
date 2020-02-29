@@ -1,6 +1,6 @@
 # FullPowers
 
-___FullPowers___ is a Proof-of-Concept tool I made for automatically recovering the default privilege set of a service account.
+___FullPowers___ is a Proof-of-Concept tool I made for automatically recovering the default privilege set of a service account. 
 
 <p align="center">
   <img src="demo.gif">
@@ -13,6 +13,8 @@ On Windows, some services executed as `LOCAL SERVICE` or `NETWORK SERVICE` are c
 For more information: https://itm4n.github.io/localservice-privileges/
 
 ## Usage
+
+:warning: __This tool should be executed as `LOCAL SERVICE` or `NETWORK SERVICE` only.__
 
 You can check the help message using the `-h` option.
 
