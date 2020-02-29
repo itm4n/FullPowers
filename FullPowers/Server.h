@@ -13,6 +13,7 @@ class Server
 private:
 	BOOL m_bVerbose = FALSE;
 	BOOL m_bInteract = TRUE; // Can be set to FALSE with option -z
+	BOOL m_bExtendedPrivilegeSet = FALSE; // Can be set to TRUE with option -x
 	DWORD m_dwTimeout = 60000;
 	DWORD m_dwDummyThreadId = 0;
 	LPCWSTR m_pwszTaskName = L"FullPowersTask";
@@ -29,6 +30,7 @@ public:
 	~Server();
 	void SetVerbose(BOOL bVerbose);
 	void SetInteract(BOOL bInteract);
+	void SetExtendedPrivileges(BOOL bExtendedPrivilegeSet);
 	void SetTimeout(DWORD dwTimeout);
 	void SetCustomCommand(LPWSTR pwszCustomCommand);
 	BOOL Run();

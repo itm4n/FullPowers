@@ -49,6 +49,11 @@ void Server::SetInteract(BOOL bInteract)
 	m_bInteract = bInteract;
 }
 
+void Server::SetExtendedPrivileges(BOOL bExtendedPrivilegeSet)
+{
+	m_bExtendedPrivilegeSet = bExtendedPrivilegeSet;
+}
+
 void Server::SetTimeout(DWORD dwTimeout)
 {
 	m_dwTimeout = dwTimeout;
@@ -594,8 +599,8 @@ BOOL Server::CreateScheduledTask(LPCWSTR pwszTaskName, LPCWSTR pwszExecutable, L
 	//   - https://docs.microsoft.com/en-us/windows/win32/services/localservice-account
 	//   - https://docs.microsoft.com/en-us/windows/win32/services/networkservice-account
 
-	//LPCWSTR ppwszRequiredPrivileges[11] = { SE_ASSIGNPRIMARYTOKEN_NAME, SE_AUDIT_NAME, SE_CHANGE_NOTIFY_NAME, SE_CREATE_GLOBAL_NAME, SE_IMPERSONATE_NAME, SE_INCREASE_QUOTA_NAME, SE_SHUTDOWN_NAME, SE_UNDOCK_NAME, SE_SYSTEMTIME_NAME, SE_INC_WORKING_SET_NAME, SE_TIME_ZONE_NAME };
 	LPCWSTR ppwszRequiredPrivileges[7] = { SE_ASSIGNPRIMARYTOKEN_NAME, SE_AUDIT_NAME, SE_CHANGE_NOTIFY_NAME, SE_CREATE_GLOBAL_NAME, SE_IMPERSONATE_NAME, SE_INCREASE_QUOTA_NAME, SE_INC_WORKING_SET_NAME }; // SE_SHUTDOWN_NAME, SE_UNDOCK_NAME, SE_SYSTEMTIME_NAME, SE_TIME_ZONE_NAME
+	LPCWSTR ppwszRequiredPrivilegesExtended[11] = { SE_ASSIGNPRIMARYTOKEN_NAME, SE_AUDIT_NAME, SE_CHANGE_NOTIFY_NAME, SE_CREATE_GLOBAL_NAME, SE_IMPERSONATE_NAME, SE_INCREASE_QUOTA_NAME, SE_SHUTDOWN_NAME, SE_UNDOCK_NAME, SE_SYSTEMTIME_NAME, SE_INC_WORKING_SET_NAME, SE_TIME_ZONE_NAME };
 
 	hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	if (FAILED(hr))
@@ -683,17 +688,32 @@ BOOL Server::CreateScheduledTask(LPCWSTR pwszTaskName, LPCWSTR pwszExecutable, L
 		goto cleanup;
 	}
 
-	for (int i = 0; i < (sizeof(ppwszRequiredPrivileges) / sizeof(*ppwszRequiredPrivileges)); i++)
+	// By default, the task scheduler creates a new process with a token which contains the 
+	// default set of privileges of the account without SeImpersonate. Therefore, we must add it
+	// manually. But, doing so, it will reset the default set of privileges so, in the end, we must
+	// add every single privilege manually.
+	if (m_bExtendedPrivilegeSet)
 	{
-		// By default, the task scheduler creates a new process with a token which contains the 
-		// default set of privileges of the account without SeImpersonate. Therefore, we must add it
-		// manually. But, doing so, it will reset the default set of privileges so, in the end, we must
-		// add every single privilege manually.
-		hr = pPrincipal2->AddRequiredPrivilege(BSTR(ppwszRequiredPrivileges[i]));
-		if (FAILED(hr))
+		for (int i = 0; i < (sizeof(ppwszRequiredPrivilegesExtended) / sizeof(*ppwszRequiredPrivilegesExtended)); i++)
 		{
-			wprintf(L"[-] IPrincipal2::AddRequiredPrivilege('%ls') failed (Err: 0x%x - %ls)\n", ppwszRequiredPrivileges[i], hr, _com_error(hr).ErrorMessage());
-			goto cleanup;
+			hr = pPrincipal2->AddRequiredPrivilege(BSTR(ppwszRequiredPrivilegesExtended[i]));
+			if (FAILED(hr))
+			{
+				wprintf(L"[-] IPrincipal2::AddRequiredPrivilege('%ls') failed (Err: 0x%x - %ls)\n", ppwszRequiredPrivilegesExtended[i], hr, _com_error(hr).ErrorMessage());
+				goto cleanup;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < (sizeof(ppwszRequiredPrivileges) / sizeof(*ppwszRequiredPrivileges)); i++)
+		{
+			hr = pPrincipal2->AddRequiredPrivilege(BSTR(ppwszRequiredPrivileges[i]));
+			if (FAILED(hr))
+			{
+				wprintf(L"[-] IPrincipal2::AddRequiredPrivilege('%ls') failed (Err: 0x%x - %ls)\n", ppwszRequiredPrivileges[i], hr, _com_error(hr).ErrorMessage());
+				goto cleanup;
+			}
 		}
 	}
 

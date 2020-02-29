@@ -11,6 +11,7 @@
 BOOL g_bVerbose = FALSE;
 BOOL g_bClientMode = FALSE;
 BOOL g_bInteract = TRUE;
+BOOL g_bExtendedPriv = FALSE;
 int g_iThreadId = 0;
 LPWSTR g_pwszCustomCommand = NULL;
 
@@ -28,6 +29,9 @@ int wmain(int argc, wchar_t** argv)
             return 0;
         case 'v':
             g_bVerbose = TRUE;
+            break;
+        case 'x':
+            g_bExtendedPriv = TRUE;
             break;
         case 'z':
             g_bInteract = FALSE;
@@ -98,6 +102,7 @@ int wmain(int argc, wchar_t** argv)
 
         Server server = Server();
         server.SetCustomCommand(g_pwszCustomCommand);
+        server.SetExtendedPrivileges(g_bExtendedPriv);
         server.SetInteract(g_bInteract);
         server.SetVerbose(g_bVerbose);
         server.SetTimeout(TIMEOUT);
@@ -123,6 +128,7 @@ void PrintUsage()
         L"Optional arguments:\n"
         "  -v              Verbose mode, used for debugging essentially\n"
         "  -c <CMD>        Custom command line to execute (default is 'C:\\Windows\\System32\\cmd.exe')\n"
+        "  -x              Try to get the extended set of privileges (might fail with NETWORK SERVICE)\n"
         "  -z              Non-interactive, create a new process and exit (default is 'interact with the new process')\n"
         "\n"
     );
