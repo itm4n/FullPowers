@@ -147,14 +147,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Client.cpp" />
     <ClCompile Include="FullPowers.cpp" />
-    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="TaskScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Client.h" />
-    <ClInclude Include="Common.h" />
-    <ClInclude Include="Server.h" />
+    <ClInclude Include="TaskScheduler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
