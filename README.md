@@ -1,6 +1,6 @@
 # FullPowers
 
-___FullPowers___ is a Proof-of-Concept tool I made for automatically recovering the default privilege set of a service account. 
+___FullPowers___ is a Proof-of-Concept tool I made for automatically recovering the __default privilege set__ of a service account including __SeAssignPrimaryToken__ and __SeImpersonate__. 
 
 <p align="center">
   <img src="demo.gif">
