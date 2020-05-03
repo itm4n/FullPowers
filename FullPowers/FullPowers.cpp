@@ -86,6 +86,7 @@ void PrintUsage()
         "  -c <CMD>        Custom command line to execute (default is 'C:\\Windows\\System32\\cmd.exe')\n"
         "  -x              Try to get the extended set of privileges (might fail with NETWORK SERVICE)\n"
         "  -z              Non-interactive, create a new process and exit (default is 'interact with the new process')\n"
+        "  -h              That's me :)\n"
         "\n"
     );
 }
@@ -128,6 +129,8 @@ DWORD DoMain()
 {
     DWORD dwCreationFlags = 0;
     LPWSTR pwszCurrentDirectory = NULL;
+    LPWSTR pwszCommandLine = NULL;
+    LPWSTR pwszCommandLineCmd = NULL;
     PROCESS_INFORMATION pi = { 0 };
     STARTUPINFO si = { 0 };
 
@@ -135,6 +138,16 @@ DWORD DoMain()
     HANDLE hTaskProcess = INVALID_HANDLE_VALUE;
     HANDLE hTaskToken = INVALID_HANDLE_VALUE;
     HANDLE hTaskTokenDup = INVALID_HANDLE_VALUE;
+
+    pwszCommandLineCmd = (LPWSTR)malloc(MAX_PATH * sizeof(WCHAR));
+    if (!pwszCommandLineCmd)
+        goto cleanup;
+
+    if (!GetEnvironmentVariable(L"COMSPEC", pwszCommandLineCmd, MAX_PATH))
+    {
+        wprintf(L"GetEnvironmentVariable('COMSPEC') failed. Error = %d\n", GetLastError());
+        goto cleanup;
+    }
 
     dwTaskPid = CreateAndRunScheduledTask();
     if (!dwTaskPid)
@@ -186,10 +199,13 @@ DWORD DoMain()
     ZeroMemory(&si, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
 
-    // The new token has the same identity so we can call CreateProcessAsUser even if don't SeAssignPrimaryToken
-    if (!CreateProcessAsUser(hTaskTokenDup, NULL, g_pwszCustomCommand, NULL, NULL, TRUE, dwCreationFlags, NULL, pwszCurrentDirectory, &si, &pi))
+    // Use provided command line or use cmd.exe by default
+    pwszCommandLine = g_pwszCustomCommand ? g_pwszCustomCommand : pwszCommandLineCmd;
+
+    // The new token has the same identity so we can call CreateProcessAsUser even if we don't SeAssignPrimaryToken
+    if (!CreateProcessAsUser(hTaskTokenDup, NULL, pwszCommandLine, NULL, NULL, TRUE, dwCreationFlags, NULL, pwszCurrentDirectory, &si, &pi))
     {
-        wprintf(L"[-] CreateProcessAsUser() failed (Err: %d)\n", GetLastError());
+        wprintf(L"CreateProcessAsUser() failed (Err: %d)\n", GetLastError());
         goto cleanup;
     }
 
@@ -208,6 +224,8 @@ cleanup:
         CloseHandle(hTaskTokenDup);
     if (pwszCurrentDirectory)
         free(pwszCurrentDirectory);
+    if (pwszCommandLineCmd)
+        free(pwszCommandLineCmd);
     if (pi.hProcess)
         CloseHandle(pi.hProcess);
     if (pi.hThread)
@@ -247,7 +265,7 @@ DWORD CreateAndRunScheduledTask()
 
     if (!GetModuleFileName(NULL, pwszTaskProgram, MAX_PATH))
     {
-        wprintf(L"[-] GetModuleFileName() failed.\n");
+        wprintf(L"GetModuleFileName() failed.\n");
         goto cleanup;
     }
 
@@ -272,7 +290,7 @@ DWORD CreateAndRunScheduledTask()
 
     if (!GetCurrentUsername(pwszCurrentUsername, &dwUsernameLen))
     {
-        wprintf(L"[-] GetCurrentUsername() failed.\n");
+        wprintf(L"GetCurrentUsername() failed.\n");
         goto cleanup;
     }
 
